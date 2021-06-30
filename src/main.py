@@ -16,12 +16,13 @@ root.geometry(f"{mainWidth}x{mainHeight}")
 courier_new = font.Font(family='Courier New', size=14)
 courier_new2 = font.Font(family='Courier New', size=20)
 
+fish_data_path = "res/FishData"
 fish_list = []
 
 x = 205
 y = 50
 
-with open('Data Center/res/fish.txt', 'r') as f:
+with open('res/fish.txt', 'r') as f:
     for line in f:
         fish_list.append(line.strip())
 
@@ -29,7 +30,30 @@ with open('Data Center/res/fish.txt', 'r') as f:
 def openFishInfo(name):
     new_fish_tab = Frame(notebook, bg="#333333")
     new_fish_tab.pack(fill=BOTH, expand=1)
+    
+    file_text = NONE
 
+    for file in os.listdir("res/FishData"):
+        if file.endswith(".txt"):
+            print("Yup")
+
+    """for files in os.listdir(fish_data_path):
+        print(files)
+        if files.replace('.txt', '') == name:
+            f = open('res/FishData/' + files, 'r')
+            file_text = f.readlines()
+            f.close()
+            print(name)
+            break
+        else:
+            #file = open("res/FishData/" + name + ".txt", "w")
+            #file.close()
+            print(name)"""
+            
+        
+    text_box = Label(new_fish_tab, text=file_text, width=150, height=30, background="gray", foreground="white")
+    text_box.pack(pady=100)
+    
     notebook.add(new_fish_tab, text="~" + name + "~")
 
 def addFish(fish_name):
@@ -38,7 +62,7 @@ def addFish(fish_name):
     name = Label(frame1, text=fish_name, font=courier_new, background="#333333", foreground="white")
     name.place(x=x + 2, y=y - 25)
 
-    asset =  ImageTk.PhotoImage(Image.open("Data Center/res/betta.png"))
+    asset =  ImageTk.PhotoImage(Image.open("res/betta.png"))
     my_label = Label(frame1, image=asset, background="#333333")
     my_label.photo = asset
     my_label.place(x=x, y=y)
@@ -52,7 +76,7 @@ def addFish(fish_name):
         y += 260
 
 def appendFish(fish_name):
-    f = open('Data Center/res/fish.txt', 'a')
+    f = open('res/fish.txt', 'a')
     f.write(fish_name + "\n")
     addFish(fish_name)
     f.close()
