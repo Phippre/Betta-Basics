@@ -32,29 +32,29 @@ def openFishInfo(name):
     new_fish_tab.pack(fill=BOTH, expand=1)
     
     file_text = NONE
+    
+    try:
+        f = open('res/FishData/' + name + '.txt', 'r')
+        file_text = f.readlines()
+        f.close()
+    except:
+        f = open('res/FishData/' + name + '.txt', 'w')
+        f.close()
+    
+    text_box = Text(new_fish_tab, background="gray", foreground="white")
+    text_box.insert(END, ' '.join(file_text))
+    text_box.place(x=5, y=50, width=1113, height=1000)
 
-    for file in os.listdir("res/FishData"):
-        if file.endswith(".txt"):
-            print("Yup")
+    fish_title = Label(new_fish_tab, text=name, bg="#333333", foreground="white", font=courier_new2)
+    fish_title.place(x=5, y=5)
 
-    """for files in os.listdir(fish_data_path):
-        print(files)
-        if files.replace('.txt', '') == name:
-            f = open('res/FishData/' + files, 'r')
-            file_text = f.readlines()
-            f.close()
-            print(name)
-            break
-        else:
-            #file = open("res/FishData/" + name + ".txt", "w")
-            #file.close()
-            print(name)"""
-            
-        
-    text_box = Label(new_fish_tab, text=file_text, width=150, height=30, background="gray", foreground="white")
-    text_box.pack(pady=100)
+    submit_button = Button(new_fish_tab, text="Submit Information", command=NONE)
+    submit_button.place(x=1000, y=10)
     
     notebook.add(new_fish_tab, text="~" + name + "~")
+
+def writeInformation(name, text):
+    NONE
 
 def addFish(fish_name):
     global x, y
