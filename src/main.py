@@ -18,20 +18,17 @@ courier_new = font.Font(family='Courier New', size=14)
 courier_new2 = font.Font(family='Courier New', size=20)
 courier_new3 = font.Font(family='Courier New', size=11)
 courier_new4 = font.Font(family='Courier New', size=9)
+courier_new5 = font.Font(family='Courier New', size=35)
 
 fish_data_path = "res/FishData"
-fish_list = []
 selected_fish_image = NONE
 
-x = 205
-y = 50
-
-#On initialization, open the list of fish and append it to an array
-
+x = 50
+y = 150
 
 #Fucntions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def openFishInfo(name):
-    new_fish_tab = Frame(notebook, bg="#333333", name=name.lower())
+    new_fish_tab = Frame(notebook, bg="#333333", name=name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
     
     file_text = NONE
@@ -44,12 +41,12 @@ def openFishInfo(name):
         f = open('res/FishData/' + name + '.txt', 'w')
         f.close()
     
-    text_box = Text(new_fish_tab, background="gray", foreground="white")
+    text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
-    text_box.place(x=5, y=50, width=1113, height=1000)
+    text_box.place(x=mainWidth-840, y=50, width=800, height=1000)
 
     fish_title = Label(new_fish_tab, text="~" + name, bg="#333333", foreground="white", font=courier_new2)
-    fish_title.place(x=5, y=5)
+    fish_title.place(x=mainWidth-840, y=5)
 
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
     close_tab_button.place(x=905, y=10)
@@ -68,24 +65,28 @@ def writeInformation(name, text):
     f.write(sumbit_text)
     f.close()
 
-def addFish(fish_name, image_url):
+def addFish(fish_name, image):
     global x, y
 
     name = Label(frame1, text=fish_name, font=courier_new, background="#333333", foreground="white")
     name.place(x=x + 2, y=y - 25)
 
-    image_url = ImageTk.PhotoImage(Image.open(image_url))
+    try:
+        image_url = ImageTk.PhotoImage(Image.open(image))
+    except:
+        image_url = ImageTk.PhotoImage(Image.open("res/img/betta.png"))
+        print("No image provided.")
 
     fish_img = Label(frame1, image=image_url, background="#333333")
     fish_img.photo = image_url
     fish_img.place(x=x, y=y)
 
     info_button = Button(frame1, text=f"{fish_name} Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:]))
-    info_button.place(x=x + 100, y=y + 205)
+    info_button.place(x=x + 2, y=y + 205)
 
-    x += 305
+    x += 360
     if (x >= mainWidth - 25):
-        x = 205
+        x = 50
         y += 260
 
 def appendFish(fish_name, image):
@@ -129,7 +130,7 @@ def render():
     notebook = ttk.Notebook(frontend_frame)
     notebook.pack(fill=BOTH, expand=1)
 
-    frame1 = Frame(notebook, bg="#333333")
+    frame1 = Frame(notebook, bg="#333333", borderwidth=0)
     frame1.pack(fill=BOTH, expand=1)
 
     optionsFrame = Frame(frame1, width=200, height=100, highlightbackground="white", highlightthickness=2, bg="#333333")
@@ -142,6 +143,8 @@ def render():
     select_image.place(x=10, y=35)
     add_element = Button(frame1, width=25, text="~Add Fish~", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: appendFish(element_name.get(), selected_fish_image))
     add_element.place(x=10, y=60)
+    titleLabel = Label(frame1, text="~Betta Basics~", font=courier_new5, background="#333333", foreground="white")
+    titleLabel.place(x=250, y=25)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     #For each line in the list add the fish and its assets to the screen
