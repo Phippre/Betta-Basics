@@ -6,33 +6,62 @@ from PIL import ImageTk, Image
 import csv
 import os
 
+#Window width and height~~~~~~~~~~~~~~~~~~~
 mainWidth = 1140
 mainHeight = 700
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Root Window~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 root = Tk()
 root.title("~Betta Basics~")
 root.iconbitmap('res/img/betta.ico')
 root.geometry(f"{mainWidth}x{mainHeight}")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Fonts(Always Courier New)~~~~~~~~~~~~~~~~~
 courier_new = font.Font(family='Courier New', size=14)
 courier_new2 = font.Font(family='Courier New', size=20)
 courier_new3 = font.Font(family='Courier New', size=11)
 courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 fish_data_path = "res/FishData"
 selected_fish_image = NONE
 
+primary_colors = ["Red", "Blue", "Turquoise", "Black", "Yellow", "White", "Orange", "Purple"]
+
 x = 50
 y = 150
 
-#Fucntions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def openFishInfo(name):
+#Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ (Dont ask wtf this shit does. Get smart and understand it yourself fam :) )
+def openFishInfo(name, image):
+    file_text = NONE
+
     new_fish_tab = Frame(notebook, bg="#333333", name=name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
     
-    file_text = NONE
-    
+    fish_title = Label(new_fish_tab, text="~" + name, bg="#333333", foreground="white", font=courier_new2)
+    fish_title.place(x=10, y=5)
+
+    close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
+    close_tab_button.place(x=905, y=10)
+
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, text_box))
+    submit_button.place(x=980, y=10)
+
+    fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
+    fish_img.photo = image
+    fish_img.place(x=5, y=50)
+
+    primary_label = Label(new_fish_tab, text="Primary Colors", background="#333333", foreground="white", font=courier_new4)
+    primary_label.place(x=5, y=275)
+
+    drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
+    drop_down.current(0)
+    #drop_down.bind("<<ComboboxSelected>>", comboTest)
+    drop_down.place(x=5, y=300)
+
     try:
         f = open('res/FishData/' + name + '.txt', 'r')
         file_text = f.readlines()
@@ -43,16 +72,7 @@ def openFishInfo(name):
     
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
-    text_box.place(x=mainWidth-840, y=50, width=800, height=1000)
-
-    fish_title = Label(new_fish_tab, text="~" + name, bg="#333333", foreground="white", font=courier_new2)
-    fish_title.place(x=mainWidth-840, y=5)
-
-    close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
-    close_tab_button.place(x=905, y=10)
-
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, text_box))
-    submit_button.place(x=980, y=10)
+    text_box.place(x=mainWidth-830, y=50, width=800, height=1000)
     
     notebook.add(new_fish_tab, text="~" + name + "~")
 
@@ -81,7 +101,7 @@ def addFish(fish_name, image):
     fish_img.photo = image_url
     fish_img.place(x=x, y=y)
 
-    info_button = Button(frame1, text=f"{fish_name} Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:]))
+    info_button = Button(frame1, text=f"{fish_name} Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
     x += 360
@@ -90,7 +110,6 @@ def addFish(fish_name, image):
         y += 260
 
 def appendFish(fish_name, image):
-    #When add fish button is pressed it writes the name to the text file and adds the fish and its assets
     data = [fish_name, image]
     with open('res/fish.csv', 'a', newline='') as f:
         csv_writer = csv.writer(f)
@@ -147,7 +166,6 @@ def render():
     titleLabel.place(x=250, y=25)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    #For each line in the list add the fish and its assets to the screen
     readFish()
 
     notebook.add(frame1, text="~Main~")
@@ -157,6 +175,7 @@ def render():
     full_scrollbar.pack(side=RIGHT, fill=Y)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Calling render function
 render()
-
+#Main Loop
 root.mainloop()
