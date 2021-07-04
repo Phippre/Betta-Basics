@@ -31,6 +31,10 @@ selected_fish_image = NONE
 
 primary_colors = ["Red", "Blue", "Turquoise", "Black", "Yellow", "White", "Orange", "Purple"]
 secondary_colors = primary_colors + ["None"]
+genders = ["Male", "Female", "LGBTQ+"]
+tails = ["Veil", "Crown", "Comb", "Delta", "Double", "Dumbo", "Halfmoon", "Plakat", "DumboPK", "HMPK", "King", "Spade", "Rose"]
+deformities = ["None", "Beard", "Curled", "Face", "Fins", "Scales", "Other"]
+diseases = ["None/Other", "Fin Rot", "Swim Bladder", "Pop Eye", "Dropsy", "Fungus", "Ich", "Velvet (Not again)", "Anchor Worms"]
 
 x = 50
 y = 150
@@ -48,30 +52,66 @@ def openFishInfo(name, image):
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
     close_tab_button.place(x=905, y=10)
 
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, text_box, drop_down.current()))
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, primary_drop_down.current(), secondary_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
 
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
     fish_img.photo = image
     fish_img.place(x=5, y=50)
 
+    #An ungodly amount of dropdowns~~~~~~~~
     primary_label = Label(new_fish_tab, text="Primary Colors", background="#333333", foreground="white", font=courier_new4)
     primary_label.place(x=5, y=275)
+    primary_drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
+    primary_drop_down.current(0)
+    #primary_drop_down.bind("<<ComboboxSelected>>", comboTest)
+    primary_drop_down.place(x=5, y=300)
 
-    drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
-    drop_down.current(0)
-    #drop_down.bind("<<ComboboxSelected>>", comboTest)
-    drop_down.place(x=5, y=300)
+    secondary_label = Label(new_fish_tab, text="Secondary Colors", background="#333333", foreground="white", font=courier_new4)
+    secondary_label.place(x=5, y=325)
+    secondary_drop_down = ttk.Combobox(new_fish_tab, value=secondary_colors, font=courier_new4)
+    secondary_drop_down.current(0)
+    secondary_drop_down.place(x=5, y=350)
+
+    gender_label = Label(new_fish_tab, text="Gender", background="#333333", foreground="white", font=courier_new4)
+    gender_label.place(x=5, y=375)
+    gender_drop_down = ttk.Combobox(new_fish_tab, value=genders, font=courier_new4)
+    gender_drop_down.current(0)
+    gender_drop_down.place(x=5, y=400)
+
+    tail_label = Label(new_fish_tab, text="Tail", background="#333333", foreground="white", font=courier_new4)
+    tail_label.place(x=5, y=425)
+    tail_drop_down = ttk.Combobox(new_fish_tab, value=tails, font=courier_new4)
+    tail_drop_down.current(0)
+    tail_drop_down.place(x=5, y=450)
+
+    deformity_label = Label(new_fish_tab, text="Deformity", background="#333333", foreground="white", font=courier_new4)
+    deformity_label.place(x=5, y=475)
+    deformity_drop_down = ttk.Combobox(new_fish_tab, value=deformities, font=courier_new4)
+    deformity_drop_down.current(0)
+    deformity_drop_down.place(x=5, y=500)
+
+    disease_label = Label(new_fish_tab, text="Disease", background="#333333", foreground="white", font=courier_new4)
+    disease_label.place(x=5, y=525)
+    disease_drop_down = ttk.Combobox(new_fish_tab, value=diseases, font=courier_new4)
+    disease_drop_down.current(0)
+    disease_drop_down.place(x=5, y=550)
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     try:
         with open('res/FishData/' + name + '.csv', 'r') as f:
             csv_reader = csv.reader(f)
             for line in csv_reader:
                 if line[0] == name:
-                    file_text = line[2]
-                    drop_down.current(line[1])
+                    primary_drop_down.current(line[1])
+                    secondary_drop_down.current(line[2])
+                    gender_drop_down.current(line[3])
+                    tail_drop_down.current(line[4])
+                    deformity_drop_down.current(line[5])
+                    disease_drop_down.current(line[6])
+                    file_text = line[7]
     except:
-        fresh_fish_data = [name, 0, ""]
+        fresh_fish_data = [name, 0, 0, 0, 0, 0, 0, ""]
         with open('res/FishData/' + name + '.csv', 'w') as f:
             csv_writer = csv.writer(f, lineterminator="\n")
             csv_writer.writerow(fresh_fish_data)
@@ -85,9 +125,9 @@ def openFishInfo(name, image):
 def closeTab():
     notebook.hide(notebook.select())
 
-def writeInformation(name, text, primary):
+def writeInformation(name, primary, secondary, gender, tail, deformity, disease, text):
     sumbit_text = text.get("1.0", END)
-    submit_data = [name, primary, sumbit_text]
+    submit_data = [name, primary, secondary, gender, tail, deformity, disease, sumbit_text]
     with open('res/FishData/' + name + '.csv', 'w') as f:
         csv_writer = csv.writer(f, lineterminator="\n")
         csv_writer.writerow(submit_data)

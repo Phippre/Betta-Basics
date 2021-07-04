@@ -1,0 +1,4 @@
+When Data Needs To Be Saved Or Read:
+On fish creation
+On Sumbit Information
+On Open Fish Info
