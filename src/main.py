@@ -30,6 +30,7 @@ fish_data_path = "res/FishData"
 selected_fish_image = NONE
 
 primary_colors = ["Red", "Blue", "Turquoise", "Black", "Yellow", "White", "Orange", "Purple"]
+secondary_colors = primary_colors + ["None"]
 
 x = 50
 y = 150
@@ -47,7 +48,7 @@ def openFishInfo(name, image):
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
     close_tab_button.place(x=905, y=10)
 
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, text_box))
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, text_box, drop_down.current()))
     submit_button.place(x=980, y=10)
 
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
@@ -63,12 +64,17 @@ def openFishInfo(name, image):
     drop_down.place(x=5, y=300)
 
     try:
-        f = open('res/FishData/' + name + '.txt', 'r')
-        file_text = f.readlines()
-        f.close()
+        with open('res/FishData/' + name + '.csv', 'r') as f:
+            csv_reader = csv.reader(f)
+            for line in csv_reader:
+                if line[0] == name:
+                    file_text = line[2]
+                    drop_down.current(line[1])
     except:
-        f = open('res/FishData/' + name + '.txt', 'w')
-        f.close()
+        fresh_fish_data = [name, 0, ""]
+        with open('res/FishData/' + name + '.csv', 'w') as f:
+            csv_writer = csv.writer(f, lineterminator="\n")
+            csv_writer.writerow(fresh_fish_data)
     
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
@@ -79,11 +85,13 @@ def openFishInfo(name, image):
 def closeTab():
     notebook.hide(notebook.select())
 
-def writeInformation(name, text):
+def writeInformation(name, text, primary):
     sumbit_text = text.get("1.0", END)
-    f = open('res/FishData/' + name + '.txt', 'w')
-    f.write(sumbit_text)
-    f.close()
+    submit_data = [name, primary, sumbit_text]
+    with open('res/FishData/' + name + '.csv', 'w') as f:
+        csv_writer = csv.writer(f, lineterminator="\n")
+        csv_writer.writerow(submit_data)
+    
 
 def addFish(fish_name, image):
     global x, y
@@ -101,7 +109,7 @@ def addFish(fish_name, image):
     fish_img.photo = image_url
     fish_img.place(x=x, y=y)
 
-    info_button = Button(frame1, text=f"{fish_name} Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
+    info_button = Button(frame1, text=f"{fish_name}'s Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
     x += 360
@@ -110,10 +118,10 @@ def addFish(fish_name, image):
         y += 260
 
 def appendFish(fish_name, image):
-    data = [fish_name, image]
+    fish_data = [fish_name, image]
     with open('res/fish.csv', 'a', newline='') as f:
         csv_writer = csv.writer(f)
-        csv_writer.writerow(data)
+        csv_writer.writerow(fish_data)
         addFish(fish_name, image)
 
 def openFishImage():
@@ -162,7 +170,7 @@ def render():
     select_image.place(x=10, y=35)
     add_element = Button(frame1, width=25, text="~Add Fish~", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: appendFish(element_name.get(), selected_fish_image))
     add_element.place(x=10, y=60)
-    titleLabel = Label(frame1, text="~Betta Basics~", font=courier_new5, background="#333333", foreground="white")
+    titleLabel = Label(frame1, text="~Betta Basics~", font=("Courier New", 35, "underline"), background="#333333", foreground="white")
     titleLabel.place(x=250, y=25)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
