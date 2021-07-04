@@ -31,10 +31,12 @@ selected_fish_image = NONE
 
 primary_colors = ["Red", "Blue", "Turquoise", "Black", "Yellow", "White", "Orange", "Purple"]
 secondary_colors = primary_colors + ["None"]
+patterns = ["None", "Alien", "Butterfly", "Dragon", "Galaxy", "Koi"]
 genders = ["Male", "Female", "LGBTQ+"]
 tails = ["Veil", "Crown", "Comb", "Delta", "Double", "Dumbo", "Halfmoon", "Plakat", "DumboPK", "HMPK", "King", "Spade", "Rose"]
 deformities = ["None", "Beard", "Curled", "Face", "Fins", "Scales", "Other"]
 diseases = ["None/Other", "Fin Rot", "Swim Bladder", "Pop Eye", "Dropsy", "Fungus", "Ich", "Velvet (Not again)", "Anchor Worms"]
+personalities = ["Agressive", "Active", "Lazy", "Retarded", "Sick"]
 
 x = 50
 y = 150
@@ -52,7 +54,7 @@ def openFishInfo(name, image):
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
     close_tab_button.place(x=905, y=10)
 
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, primary_drop_down.current(), secondary_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), text_box))
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
 
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
@@ -73,29 +75,41 @@ def openFishInfo(name, image):
     secondary_drop_down.current(0)
     secondary_drop_down.place(x=5, y=350)
 
+    pattern_label = Label(new_fish_tab, text="Pattern", background="#333333", foreground="white", font=courier_new4)
+    pattern_label.place(x=5, y=375)
+    pattern_drop_down = ttk.Combobox(new_fish_tab, value=patterns, font=courier_new4)
+    pattern_drop_down.current(0)
+    pattern_drop_down.place(x=5, y=400)
+
     gender_label = Label(new_fish_tab, text="Gender", background="#333333", foreground="white", font=courier_new4)
-    gender_label.place(x=5, y=375)
+    gender_label.place(x=5, y=425)
     gender_drop_down = ttk.Combobox(new_fish_tab, value=genders, font=courier_new4)
     gender_drop_down.current(0)
-    gender_drop_down.place(x=5, y=400)
+    gender_drop_down.place(x=5, y=450)
 
     tail_label = Label(new_fish_tab, text="Tail", background="#333333", foreground="white", font=courier_new4)
-    tail_label.place(x=5, y=425)
+    tail_label.place(x=5, y=475)
     tail_drop_down = ttk.Combobox(new_fish_tab, value=tails, font=courier_new4)
     tail_drop_down.current(0)
-    tail_drop_down.place(x=5, y=450)
+    tail_drop_down.place(x=5, y=500)
 
     deformity_label = Label(new_fish_tab, text="Deformity", background="#333333", foreground="white", font=courier_new4)
-    deformity_label.place(x=5, y=475)
+    deformity_label.place(x=5, y=525)
     deformity_drop_down = ttk.Combobox(new_fish_tab, value=deformities, font=courier_new4)
     deformity_drop_down.current(0)
-    deformity_drop_down.place(x=5, y=500)
+    deformity_drop_down.place(x=5, y=550)
 
     disease_label = Label(new_fish_tab, text="Disease", background="#333333", foreground="white", font=courier_new4)
-    disease_label.place(x=5, y=525)
+    disease_label.place(x=5, y=575)
     disease_drop_down = ttk.Combobox(new_fish_tab, value=diseases, font=courier_new4)
     disease_drop_down.current(0)
-    disease_drop_down.place(x=5, y=550)
+    disease_drop_down.place(x=5, y=600)
+
+    personality_label = Label(new_fish_tab, text="Personality", background="#333333", foreground="white", font=courier_new4)
+    personality_label.place(x=5, y=625)
+    personality_drop_down = ttk.Combobox(new_fish_tab, value=personalities, font=courier_new4)
+    personality_drop_down.current(0)
+    personality_drop_down.place(x=5, y=650)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     try:
@@ -105,13 +119,15 @@ def openFishInfo(name, image):
                 if line[0] == name:
                     primary_drop_down.current(line[1])
                     secondary_drop_down.current(line[2])
-                    gender_drop_down.current(line[3])
-                    tail_drop_down.current(line[4])
-                    deformity_drop_down.current(line[5])
-                    disease_drop_down.current(line[6])
-                    file_text = line[7]
+                    pattern_drop_down.current(line[3])
+                    gender_drop_down.current(line[4])
+                    tail_drop_down.current(line[5])
+                    deformity_drop_down.current(line[6])
+                    disease_drop_down.current(line[7])
+                    personality_drop_down.current(line[8])
+                    file_text = line[8]
     except:
-        fresh_fish_data = [name, 0, 0, 0, 0, 0, 0, ""]
+        fresh_fish_data = [name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
         with open('res/FishData/' + name + '.csv', 'w') as f:
             csv_writer = csv.writer(f, lineterminator="\n")
             csv_writer.writerow(fresh_fish_data)
@@ -125,9 +141,9 @@ def openFishInfo(name, image):
 def closeTab():
     notebook.hide(notebook.select())
 
-def writeInformation(name, primary, secondary, gender, tail, deformity, disease, text):
+def writeInformation(name, primary, secondary, pattern, gender, tail, deformity, disease, personality, text):
     sumbit_text = text.get("1.0", END)
-    submit_data = [name, primary, secondary, gender, tail, deformity, disease, sumbit_text]
+    submit_data = [name, primary, secondary, pattern, gender, tail, deformity, disease, personality, sumbit_text]
     with open('res/FishData/' + name + '.csv', 'w') as f:
         csv_writer = csv.writer(f, lineterminator="\n")
         csv_writer.writerow(submit_data)
