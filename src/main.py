@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog as fd
 import tkinter.font as font
 from PIL import ImageTk, Image
+import pygame
 import csv
 import os
 
@@ -17,6 +18,8 @@ root.title("~Betta Basics~")
 root.iconbitmap('res/img/betta.ico')
 root.geometry(f"{mainWidth}x{mainHeight}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+pygame.mixer.init()
 
 #Fonts(Always Courier New)~~~~~~~~~~~~~~~~~
 courier_new = font.Font(family='Courier New', size=14)
@@ -42,8 +45,15 @@ x = 50
 y = 150
 
 #Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ (Dont ask wtf this shit does. Get smart and understand it yourself fam :) )
+def playSounds(sound, volume):
+    pygame.mixer.music.load(sound)
+    pygame.mixer.music.set_volume(volume)
+    pygame.mixer.music.play(loops=0)
+
 def openFishInfo(name, image):
     file_text = NONE
+
+    playSounds("res/sounds/bubble-pop.mp3", 0.1)
 
     new_fish_tab = Frame(notebook, bg="#333333", name=name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
@@ -125,7 +135,7 @@ def openFishInfo(name, image):
                     deformity_drop_down.current(line[6])
                     disease_drop_down.current(line[7])
                     personality_drop_down.current(line[8])
-                    file_text = line[8]
+                    file_text = line[9]
     except:
         fresh_fish_data = [name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
         with open('res/FishData/' + name + '.csv', 'w') as f:
@@ -137,6 +147,9 @@ def openFishInfo(name, image):
     text_box.place(x=mainWidth-830, y=50, width=800, height=1000)
     
     notebook.add(new_fish_tab, text="~" + name + "~")
+
+    indexes = notebook.index(END)
+    notebook.select(notebook.index(int(indexes) - 1))
 
 def closeTab():
     notebook.hide(notebook.select())
@@ -231,6 +244,7 @@ def render():
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     readFish()
+    #playSounds("res/sounds/bubbles.mp3", 0.1)
 
     notebook.add(frame1, text="~Main~")
 
