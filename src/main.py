@@ -29,6 +29,8 @@ courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+can_scroll = True
+
 fish_data_path = "res/FishData"
 selected_fish_image = NONE
 
@@ -73,53 +75,52 @@ def openFishInfo(name, image):
 
     #An ungodly amount of dropdowns~~~~~~~~
     primary_label = Label(new_fish_tab, text="Primary Colors", background="#333333", foreground="white", font=courier_new4)
-    primary_label.place(x=5, y=275)
+    primary_label.place(x=5, y=265)
     primary_drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
     primary_drop_down.current(0)
-    #primary_drop_down.bind("<<ComboboxSelected>>", comboTest)
-    primary_drop_down.place(x=5, y=300)
+    primary_drop_down.place(x=5, y=290)
 
     secondary_label = Label(new_fish_tab, text="Secondary Colors", background="#333333", foreground="white", font=courier_new4)
-    secondary_label.place(x=5, y=325)
+    secondary_label.place(x=5, y=315)
     secondary_drop_down = ttk.Combobox(new_fish_tab, value=secondary_colors, font=courier_new4)
     secondary_drop_down.current(0)
-    secondary_drop_down.place(x=5, y=350)
+    secondary_drop_down.place(x=5, y=340)
 
     pattern_label = Label(new_fish_tab, text="Pattern", background="#333333", foreground="white", font=courier_new4)
-    pattern_label.place(x=5, y=375)
+    pattern_label.place(x=5, y=365)
     pattern_drop_down = ttk.Combobox(new_fish_tab, value=patterns, font=courier_new4)
     pattern_drop_down.current(0)
-    pattern_drop_down.place(x=5, y=400)
+    pattern_drop_down.place(x=5, y=390)
 
     gender_label = Label(new_fish_tab, text="Gender", background="#333333", foreground="white", font=courier_new4)
-    gender_label.place(x=5, y=425)
+    gender_label.place(x=5, y=415)
     gender_drop_down = ttk.Combobox(new_fish_tab, value=genders, font=courier_new4)
     gender_drop_down.current(0)
-    gender_drop_down.place(x=5, y=450)
+    gender_drop_down.place(x=5, y=440)
 
     tail_label = Label(new_fish_tab, text="Tail", background="#333333", foreground="white", font=courier_new4)
-    tail_label.place(x=5, y=475)
+    tail_label.place(x=5, y=465)
     tail_drop_down = ttk.Combobox(new_fish_tab, value=tails, font=courier_new4)
     tail_drop_down.current(0)
-    tail_drop_down.place(x=5, y=500)
+    tail_drop_down.place(x=5, y=490)
 
     deformity_label = Label(new_fish_tab, text="Deformity", background="#333333", foreground="white", font=courier_new4)
-    deformity_label.place(x=5, y=525)
+    deformity_label.place(x=5, y=515)
     deformity_drop_down = ttk.Combobox(new_fish_tab, value=deformities, font=courier_new4)
     deformity_drop_down.current(0)
-    deformity_drop_down.place(x=5, y=550)
+    deformity_drop_down.place(x=5, y=540)
 
     disease_label = Label(new_fish_tab, text="Disease", background="#333333", foreground="white", font=courier_new4)
-    disease_label.place(x=5, y=575)
+    disease_label.place(x=5, y=565)
     disease_drop_down = ttk.Combobox(new_fish_tab, value=diseases, font=courier_new4)
     disease_drop_down.current(0)
-    disease_drop_down.place(x=5, y=600)
+    disease_drop_down.place(x=5, y=590)
 
     personality_label = Label(new_fish_tab, text="Personality", background="#333333", foreground="white", font=courier_new4)
-    personality_label.place(x=5, y=625)
+    personality_label.place(x=5, y=615)
     personality_drop_down = ttk.Combobox(new_fish_tab, value=personalities, font=courier_new4)
     personality_drop_down.current(0)
-    personality_drop_down.place(x=5, y=650)
+    personality_drop_down.place(x=5, y=640)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     try:
@@ -144,7 +145,12 @@ def openFishInfo(name, image):
     
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
-    text_box.place(x=mainWidth-830, y=50, width=800, height=1000)
+    text_box.place(x=mainWidth-830, y=50, width=800, height=600)
+    text_scroll = Scrollbar(text_box)
+    text_scroll.pack(side=RIGHT, fill=Y)
+    text_box.configure(yscrollcommand=text_scroll.set)
+    text_scroll.config(command=text_box.yview)
+    #text_box.bind_all("<MouseWheel>", lambda: _on_mouse_wheel(text_box))
     
     notebook.add(new_fish_tab, text="~" + name + "~")
 
@@ -206,28 +212,37 @@ def readFish():
         for line in csv_reader:
             addFish(line[0], line[1])
 
-def render():
-    global frame1, notebook
-
-    backend_frame = Frame(root)
-    backend_canvas = Canvas(backend_frame)
-    full_scrollbar = ttk.Scrollbar(backend_frame, orient=VERTICAL, command=backend_canvas.yview)
-    frontend_frame = Frame(backend_canvas)
-
-    backend_canvas.configure(yscrollcommand=full_scrollbar.set)
-    backend_canvas.bind('<Configure>', lambda e: backend_canvas.configure(scrollregion=backend_canvas.bbox("all")))
-    backend_canvas.create_window((0, 0), window=frontend_frame, anchor="nw", width=mainWidth, height=3000)
-
-    def _on_mouse_wheel(event):
+def _on_mouse_wheel(event):
+    if notebook.index(notebook.select()) == 0:
         backend_canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
 
-    backend_canvas.bind_all("<MouseWheel>", _on_mouse_wheel)
+def render():
+    global frame1, notebook, backend_canvas, full_scrollbar
+
+    backend_frame = Frame(root)
+    backend_frame.pack(fill=BOTH, expand=1)
+
+    backend_canvas = Canvas(backend_frame)
+    backend_canvas.pack(fill=BOTH, expand=1)
+
+    frontend_frame = Frame(backend_canvas)
+
+    backend_canvas.bind('<Configure>', lambda e: backend_canvas.configure(scrollregion=backend_canvas.bbox("all")))
+    backend_canvas.create_window((0, 0), window=frontend_frame, anchor="nw", width=1142, height=3000)
 
     notebook = ttk.Notebook(frontend_frame)
     notebook.pack(fill=BOTH, expand=1)
 
-    frame1 = Frame(notebook, bg="#333333", borderwidth=0)
+    frame1 = Frame(notebook, bg="#333333", borderwidth=3)
     frame1.pack(fill=BOTH, expand=1)
+
+    notebook.add(frame1, text="~Main~")
+
+    full_scrollbar = Scrollbar(backend_frame) #, orient=VERTICAL, command=backend_canvas.yview
+    #full_scrollbar.pack(side=RIGHT, fill=Y)
+    backend_canvas.configure(yscrollcommand=full_scrollbar.set)
+    full_scrollbar.configure(command=backend_canvas.yview)
+    backend_canvas.bind_all("<MouseWheel>", _on_mouse_wheel)
 
     optionsFrame = Frame(frame1, width=200, height=100, highlightbackground="white", highlightthickness=2, bg="#333333")
     optionsFrame.pack(anchor=W)
@@ -246,11 +261,6 @@ def render():
     readFish()
     #playSounds("res/sounds/bubbles.mp3", 0.1)
 
-    notebook.add(frame1, text="~Main~")
-
-    backend_frame.pack(fill=BOTH, expand=1)
-    backend_canvas.pack(side=LEFT, fill=BOTH, expand=True)
-    full_scrollbar.pack(side=RIGHT, fill=Y)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #Calling render function
