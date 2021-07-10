@@ -55,6 +55,8 @@ def playSounds(sound, volume):
 def openFishInfo(name, image):
     file_text = NONE
 
+    backend_canvas.yview_moveto(0)
+
     playSounds("res/sounds/bubble-pop.mp3", 0.1)
 
     new_fish_tab = Frame(notebook, bg="#333333", name=name.lower(), borderwidth=0)
@@ -187,6 +189,9 @@ def addFish(fish_name, image):
     info_button = Button(frame1, text=f"{fish_name}'s Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
+    delete_button = Button(frame1, text=f"Delete", background="gray", foreground="red", borderwidth=0, font=courier_new3, command=None)
+    delete_button.place(x=x + 238, y=y + 205)
+
     x += 360
     if (x >= mainWidth - 25):
         x = 50
@@ -228,7 +233,7 @@ def render():
     frontend_frame = Frame(backend_canvas)
 
     backend_canvas.bind('<Configure>', lambda e: backend_canvas.configure(scrollregion=backend_canvas.bbox("all")))
-    backend_canvas.create_window((0, 0), window=frontend_frame, anchor="nw", width=1142, height=3000)
+    backend_canvas.create_window((-1, 0), window=frontend_frame, anchor="nw", width=1144, height=3000)
 
     notebook = ttk.Notebook(frontend_frame)
     notebook.pack(fill=BOTH, expand=1)
@@ -238,7 +243,7 @@ def render():
 
     notebook.add(frame1, text="~Main~")
 
-    full_scrollbar = Scrollbar(backend_frame) #, orient=VERTICAL, command=backend_canvas.yview
+    full_scrollbar = Scrollbar(backend_frame)
     #full_scrollbar.pack(side=RIGHT, fill=Y)
     backend_canvas.configure(yscrollcommand=full_scrollbar.set)
     full_scrollbar.configure(command=backend_canvas.yview)
