@@ -16,7 +16,11 @@ mainHeight = 700
 root = Tk()
 root.title("~Betta Basics~")
 root.iconbitmap('res/img/betta.ico')
-root.geometry(f"{mainWidth}x{mainHeight}")
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+screenx = (screen_width / 2 - mainWidth / 2)
+screeny = (screen_height / 2 - mainHeight / 2)
+root.geometry(f"{mainWidth}x{mainHeight}+{int(screenx)}+{int(screeny)}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 pygame.mixer.init()
@@ -28,8 +32,6 @@ courier_new3 = font.Font(family='Courier New', size=11)
 courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-can_scroll = True
 
 fish_data_path = "res/FishData"
 selected_fish_image = NONE
@@ -52,23 +54,23 @@ def playSounds(sound, volume):
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(loops=0)
 
-def openFishInfo(name, image):
+def openFishInfo(fish_name, image):
     file_text = NONE
-
+    print(fish_name)
     backend_canvas.yview_moveto(0)
 
     playSounds("res/sounds/bubble-pop.mp3", 0.1)
 
-    new_fish_tab = Frame(notebook, bg="#333333", name=name.lower(), borderwidth=0)
+    new_fish_tab = Frame(notebook, bg="#333333", name=fish_name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
     
-    fish_title = Label(new_fish_tab, text="~" + name, bg="#333333", foreground="white", font=courier_new2)
+    fish_title = Label(new_fish_tab, text="~" + fish_name, bg="#333333", foreground="white", font=courier_new2)
     fish_title.place(x=10, y=5)
 
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
     close_tab_button.place(x=905, y=10)
 
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(fish_name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
 
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
@@ -126,10 +128,10 @@ def openFishInfo(name, image):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     try:
-        with open('res/FishData/' + name + '.csv', 'r') as f:
+        with open('res/FishData/' + fish_name + '.csv', 'r') as f:
             csv_reader = csv.reader(f)
             for line in csv_reader:
-                if line[0] == name:
+                if line[0] == fish_name:
                     primary_drop_down.current(line[1])
                     secondary_drop_down.current(line[2])
                     pattern_drop_down.current(line[3])
@@ -140,21 +142,23 @@ def openFishInfo(name, image):
                     personality_drop_down.current(line[8])
                     file_text = line[9]
     except:
-        fresh_fish_data = [name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
-        with open('res/FishData/' + name + '.csv', 'w') as f:
+        fresh_fish_data = [fish_name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
+        with open('res/FishData/' + fish_name + '.csv', 'w') as f:
             csv_writer = csv.writer(f, lineterminator="\n")
             csv_writer.writerow(fresh_fish_data)
     
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
     text_box.place(x=mainWidth-830, y=50, width=800, height=600)
+
     text_scroll = Scrollbar(text_box)
     text_scroll.pack(side=RIGHT, fill=Y)
+
     text_box.configure(yscrollcommand=text_scroll.set)
+
     text_scroll.config(command=text_box.yview)
-    #text_box.bind_all("<MouseWheel>", lambda: _on_mouse_wheel(text_box))
     
-    notebook.add(new_fish_tab, text="~" + name + "~")
+    notebook.add(new_fish_tab, text="~" + fish_name + "~")
 
     indexes = notebook.index(END)
     notebook.select(notebook.index(int(indexes) - 1))
@@ -162,40 +166,94 @@ def openFishInfo(name, image):
 def closeTab():
     notebook.hide(notebook.select())
 
-def writeInformation(name, primary, secondary, pattern, gender, tail, deformity, disease, personality, text):
+def writeInformation(fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, text):
     sumbit_text = text.get("1.0", END)
-    submit_data = [name, primary, secondary, pattern, gender, tail, deformity, disease, personality, sumbit_text]
-    with open('res/FishData/' + name + '.csv', 'w') as f:
+    submit_data = [fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, sumbit_text]
+    with open('res/FishData/' + fish_name + '.csv', 'w') as f:
         csv_writer = csv.writer(f, lineterminator="\n")
         csv_writer.writerow(submit_data)
+
+def popUpConfirm(fish_name):
+    global popup
+    popup = Toplevel(root)
+    popup.title("Confirm")
+    popup_width = 250
+    popup_height = 150
+    popup_screenx = popup.winfo_screenwidth()
+    popup_screeny = popup.winfo_screenheight()
+    popupx = (popup_screenx / 2 - popup_width / 2)
+    popupy = (popup_screeny / 2 - popup_height / 2)
+    popup.geometry(f"{popup_width}x{popup_height}+{int(popupx)}+{int(popupy)}")
+    popup.config(bg="#333333")
+    confirm_message = Label(popup, text=f"Would you like to delete: \n {fish_name}", font=courier_new3, background="#333333", foreground="white")
+    confirm_message.place(x=10, y=20)
+
+    yes_button = Button(popup, width=10, text="Yes", background="gray", foreground="#38BC00", command=lambda: deleteFish(fish_name))
+    yes_button.place(x=10, y=100)
+
+    no_button = Button(popup, width=10, text="No", background="gray", foreground="red", command=popup.destroy)
+    no_button.place(x=160, y=100)
+
+def deleteFish(fish_name):
+    global x, y
+
+    popup.destroy()
     
+    with open("res/fish.csv", "r") as f:
+        reader = csv.reader(f)
+        data = list(reader)
+    
+    with open("res/fish.csv", "w", newline='') as f:
+        writer = csv.writer(f)
+        for row in data:
+            if row[0] != fish_name:
+                writer.writerow(row)
+
+    if os.path.exists(f"res/FishData/{fish_name}.csv"):
+        os.remove(f"res/FishData/{fish_name}.csv")
+    else:
+        print("File does not exist")
+
+    x = root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").winfo_x()
+    y = root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").winfo_y()
+
+    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Title").destroy()
+    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").destroy()
+    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}").destroy()
+    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Delete").destroy()
 
 def addFish(fish_name, image):
     global x, y
 
-    name = Label(frame1, text=fish_name, font=courier_new, background="#333333", foreground="white")
-    name.place(x=x + 2, y=y - 25)
+    name = Label(frame1, text=fish_name, name=f"{fish_name.lower()}Title", font=courier_new, background="#333333", foreground="white")
+    name.place(x = x + 2, y = y - 25)
 
     try:
         image_url = ImageTk.PhotoImage(Image.open(image))
     except:
         image_url = ImageTk.PhotoImage(Image.open("res/img/betta.png"))
-        print("No image provided.")
+        print("No image provided. Selecting default image.")
 
-    fish_img = Label(frame1, image=image_url, background="#333333")
+    fish_img = Label(frame1, image=image_url, name=f"{fish_name.lower()}Img", background="#333333")
     fish_img.photo = image_url
     fish_img.place(x=x, y=y)
-
-    info_button = Button(frame1, text=f"{fish_name}'s Info", name=fish_name.lower(), background="gray", foreground="white", borderwidth=0, font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
+    
+    info_button = Button(frame1, text=f"{fish_name}'s Info", name=f"{fish_name.lower()}", background="gray", foreground="white", font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
-    delete_button = Button(frame1, text=f"Delete", background="gray", foreground="red", borderwidth=0, font=courier_new3, command=None)
-    delete_button.place(x=x + 238, y=y + 205)
+    delete_button = Button(frame1, text=f"Delete", name=f"{fish_name.lower()}Delete", background="gray", foreground="#FF0000", font=courier_new3, command=lambda: popUpConfirm(fish_name))#deleteFish(fish_name)
+    delete_button.place(x=x + 235, y=y + 205)
 
     x += 360
+
     if (x >= mainWidth - 25):
         x = 50
-        y += 260
+        y += 265
+
+def openFishImage():
+    global selected_fish_image
+    root.filename = fd.askopenfilename(initialdir="res/img", title="~Select an image~", filetypes=(("~All Files~", "*.*"), (".png files", "*.png"), (".jpg files", "*.jpg")))
+    selected_fish_image = root.filename
 
 def appendFish(fish_name, image):
     fish_data = [fish_name, image]
@@ -203,12 +261,6 @@ def appendFish(fish_name, image):
         csv_writer = csv.writer(f)
         csv_writer.writerow(fish_data)
         addFish(fish_name, image)
-
-def openFishImage():
-    global selected_fish_image
-    root.filename = fd.askopenfilename(initialdir="res/img", title="~Select an image~", filetypes=((".png files", "*.png"), (".jpg files", "*.jpg"), ("~All Files~", "*.*")))
-    selected_fish_image = root.filename
-    print(selected_fish_image)
 
 def readFish():
     with open('res/fish.csv', 'r') as f:
@@ -255,10 +307,10 @@ def render():
     #Place Assets Here~~~~~~~~~~~~~~~~~~~~~
     element_name = Entry(frame1, width=26, background="gray", foreground="white", borderwidth=0, font=courier_new4)
     element_name.place(x=8, y=10)
-    select_image = Button(frame1, width=25, text="Select Image", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=openFishImage)
+    select_image = Button(frame1, width=25, text="Select Image", background="gray", foreground="white", font=courier_new4, command=openFishImage)
     select_image.place(x=10, y=35)
-    add_element = Button(frame1, width=25, text="~Add Fish~", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: appendFish(element_name.get(), selected_fish_image))
-    add_element.place(x=10, y=60)
+    add_element = Button(frame1, width=25, text="~Add Fish~", background="gray", foreground="white", font=courier_new4, command=lambda: appendFish(element_name.get(), selected_fish_image))
+    add_element.place(x=10, y=65)
     titleLabel = Label(frame1, text="~Betta Basics~", font=("Courier New", 35, "underline"), background="#333333", foreground="white")
     titleLabel.place(x=250, y=25)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
