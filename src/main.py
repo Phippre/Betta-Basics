@@ -33,6 +33,8 @@ courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+fish_list = []
+
 fish_data_path = "res/FishData"
 selected_fish_image = NONE
 
@@ -56,7 +58,7 @@ def playSounds(sound, volume):
 
 def openFishInfo(fish_name, image):
     file_text = NONE
-    print(fish_name)
+    
     backend_canvas.yview_moveto(0)
 
     playSounds("res/sounds/bubble-pop.mp3", 0.1)
@@ -67,10 +69,10 @@ def openFishInfo(fish_name, image):
     fish_title = Label(new_fish_tab, text="~" + fish_name, bg="#333333", foreground="white", font=courier_new2)
     fish_title.place(x=10, y=5)
 
-    close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=closeTab)
-    close_tab_button.place(x=905, y=10)
+    close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", font=courier_new4, command=closeTab)
+    close_tab_button.place(x=900, y=10)
 
-    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", borderwidth=0, font=courier_new4, command=lambda: writeInformation(fish_name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
+    submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", font=courier_new4, command=lambda: writeInformation(fish_name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
 
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
@@ -195,13 +197,22 @@ def popUpConfirm(fish_name):
     no_button.place(x=160, y=100)
 
 def deleteFish(fish_name):
-    global x, y
+    global x, y, fish_list
 
     popup.destroy()
     
     with open("res/fish.csv", "r") as f:
         reader = csv.reader(f)
         data = list(reader)
+
+    with open("res/fish.csv", "r") as f:
+        reader = csv.reader(f)
+        next(reader)
+        for line in reader:
+            root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Img").destroy()
+            root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}").destroy()
+            root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Title").destroy()
+            root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Delete").destroy()
     
     with open("res/fish.csv", "w", newline='') as f:
         writer = csv.writer(f)
@@ -214,13 +225,12 @@ def deleteFish(fish_name):
     else:
         print("File does not exist")
 
-    x = root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").winfo_x()
-    y = root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").winfo_y()
+    x = 50
+    y = 150
 
-    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Title").destroy()
-    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Img").destroy()
-    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}").destroy()
-    root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{fish_name.lower()}Delete").destroy()
+    fish_list = []
+    
+    readFish()
 
 def addFish(fish_name, image):
     global x, y
@@ -229,9 +239,9 @@ def addFish(fish_name, image):
     name.place(x = x + 2, y = y - 25)
 
     try:
-        image_url = ImageTk.PhotoImage(Image.open(image))
+        image_url = ImageTk.PhotoImage(Image.open(image).resize((300, 200)))
     except:
-        image_url = ImageTk.PhotoImage(Image.open("res/img/betta.png"))
+        image_url = ImageTk.PhotoImage(Image.open("res/img/betta.png").resize((300, 200)))
         print("No image provided. Selecting default image.")
 
     fish_img = Label(frame1, image=image_url, name=f"{fish_name.lower()}Img", background="#333333")
@@ -241,8 +251,8 @@ def addFish(fish_name, image):
     info_button = Button(frame1, text=f"{fish_name}'s Info", name=f"{fish_name.lower()}", background="gray", foreground="white", font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
-    delete_button = Button(frame1, text=f"Delete", name=f"{fish_name.lower()}Delete", background="gray", foreground="#FF0000", font=courier_new3, command=lambda: popUpConfirm(fish_name))#deleteFish(fish_name)
-    delete_button.place(x=x + 235, y=y + 205)
+    delete_button = Button(frame1, text=f"Delete", name=f"{fish_name.lower()}Delete", background="#A52B2B", foreground="black", font=courier_new4, command=lambda: popUpConfirm(fish_name))#deleteFish(fish_name)
+    delete_button.place(x=x + 250, y=y + 205)
 
     x += 360
 
@@ -256,17 +266,22 @@ def openFishImage():
     selected_fish_image = root.filename
 
 def appendFish(fish_name, image):
-    fish_data = [fish_name, image]
-    with open('res/fish.csv', 'a', newline='') as f:
-        csv_writer = csv.writer(f)
-        csv_writer.writerow(fish_data)
-        addFish(fish_name, image)
+    if fish_name not in fish_list:
+        fish_list.append(fish_name)
+        fish_data = [fish_name, image]
+        with open('res/fish.csv', 'a', newline='') as f:
+            csv_writer = csv.writer(f)
+            csv_writer.writerow(fish_data)
+            addFish(fish_name, image)
+    else:
+        print("NEGATIVE GHOST RIDER")
 
 def readFish():
     with open('res/fish.csv', 'r') as f:
         csv_reader = csv.reader(f)
         next(csv_reader)
         for line in csv_reader:
+            fish_list.append(line[0])
             addFish(line[0], line[1])
 
 def _on_mouse_wheel(event):
