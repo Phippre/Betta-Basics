@@ -33,6 +33,7 @@ courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Assorted variables~~~~~~~~~~~~~~~~~~~~~~~~
 fish_list = []
 
 fish_data_path = "res/FishData"
@@ -49,8 +50,10 @@ personalities = ["Agressive", "Active", "Lazy", "Retarded", "Sick"]
 
 x = 50
 y = 150
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ (Dont ask wtf this shit does. Get smart and understand it yourself fam :) )
+#Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+#Function for playing sounds with pygame. Takes file path to sound and volume float as input.
 def playSounds(sound, volume):
     pygame.mixer.music.load(sound)
     pygame.mixer.music.set_volume(volume)
@@ -232,6 +235,10 @@ def deleteFish(fish_name):
     
     readFish()
 
+#The addFish() function is used to display new fish on the main page and supply the buttons for deleting fish and opening new tabs.
+#It has global x and y variables to other functions can manipulate the position and update it if a fish is deleted.
+#Then it creates a name label for a title. Tries to get image selected. If no image is found it selects a default.
+#Displays the image, info button and delete button. At the end it 
 def addFish(fish_name, image):
     global x, y
 
@@ -260,11 +267,18 @@ def addFish(fish_name, image):
         x = 50
         y += 265
 
+#This function is called when you click the select_image button when adding a new fish.
+#When this function is called. A dialog box is opened to allow the user to select an image to use.
+#It renames the variable "selected_fish_image" to the file path of the image to later be used.
 def openFishImage():
     global selected_fish_image
     root.filename = fd.askopenfilename(initialdir="res/img", title="~Select an image~", filetypes=(("~All Files~", "*.*"), (".png files", "*.png"), (".jpg files", "*.jpg")))
     selected_fish_image = root.filename
 
+#appendFish() handles writing new fish to the CSV file so it can be read later.
+#If the fish name is not already in the array "fish_list", it will continue.
+#The data to be appened will be put into an array for insertion.
+#Then append the row to the file and run the addFish() function to add it to screen.
 def appendFish(fish_name, image):
     if fish_name not in fish_list:
         fish_list.append(fish_name)
@@ -276,6 +290,8 @@ def appendFish(fish_name, image):
     else:
         print("NEGATIVE GHOST RIDER")
 
+#readFish() opens the main CSV list file to read all the fish names and image paths, then run the addFish() on each fish.
+#During the loop process, it also adds just the fish name in each line to an array that will later be used to make sure the fish doesnt already exist.
 def readFish():
     with open('res/fish.csv', 'r') as f:
         csv_reader = csv.reader(f)
@@ -284,10 +300,15 @@ def readFish():
             fish_list.append(line[0])
             addFish(line[0], line[1])
 
+#Function to scroll the backend_canvas, only if you're on the main page. 
 def _on_mouse_wheel(event):
     if notebook.index(notebook.select()) == 0:
         backend_canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
 
+#Render function is the main function. It creates the main frames and canvas needed to host the Notebook widget
+#Also contains main page things in the GUI, as well as the scroll bar. 
+#This function ultimately lights off the rest of the program. The add_element button is used to call appendFish() which will create new fish.
+#At the end of this function we call the readFish() function. readFish() will start the process for displaying the fish on the screen.
 def render():
     global frame1, notebook, backend_canvas, full_scrollbar
 
