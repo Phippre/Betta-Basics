@@ -199,6 +199,8 @@ def popUpConfirm(fish_name):
     no_button = Button(popup, width=10, text="No", background="gray", foreground="red", command=popup.destroy)
     no_button.place(x=160, y=100)
 
+#The deleteFish() function is called when the yes button is selected on the pop-up window. 
+
 def deleteFish(fish_name):
     global x, y, fish_list
 
@@ -238,7 +240,7 @@ def deleteFish(fish_name):
 #The addFish() function is used to display new fish on the main page and supply the buttons for deleting fish and opening new tabs.
 #It has global x and y variables to other functions can manipulate the position and update it if a fish is deleted.
 #Then it creates a name label for a title. Tries to get image selected. If no image is found it selects a default.
-#Displays the image, info button and delete button. At the end it 
+#Displays the image, info button and delete button. At the end it offsets the x and y coordinates to place the next fish in the correct place.
 def addFish(fish_name, image):
     global x, y
 
