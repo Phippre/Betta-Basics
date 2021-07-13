@@ -248,7 +248,7 @@ def addFish(fish_name, image):
     fish_img.photo = image_url
     fish_img.place(x=x, y=y)
     
-    info_button = Button(frame1, text=f"{fish_name}'s Info", name=f"{fish_name.lower()}", background="gray", foreground="white", font=courier_new3, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
+    info_button = Button(frame1, text=f"{fish_name}'s Info", name=f"{fish_name.lower()}", background="gray", foreground="white", font=courier_new4, command=lambda: openFishInfo(info_button._name[0].upper() + info_button._name[1:], image_url))
     info_button.place(x=x + 2, y=y + 205)
 
     delete_button = Button(frame1, text=f"Delete", name=f"{fish_name.lower()}Delete", background="#A52B2B", foreground="black", font=courier_new4, command=lambda: popUpConfirm(fish_name))#deleteFish(fish_name)
@@ -323,9 +323,9 @@ def render():
     element_name = Entry(frame1, width=26, background="gray", foreground="white", borderwidth=0, font=courier_new4)
     element_name.place(x=8, y=10)
     select_image = Button(frame1, width=25, text="Select Image", background="gray", foreground="white", font=courier_new4, command=openFishImage)
-    select_image.place(x=10, y=35)
+    select_image.place(x=9, y=35)
     add_element = Button(frame1, width=25, text="~Add Fish~", background="gray", foreground="white", font=courier_new4, command=lambda: appendFish(element_name.get(), selected_fish_image))
-    add_element.place(x=10, y=65)
+    add_element.place(x=9, y=65)
     titleLabel = Label(frame1, text="~Betta Basics~", font=("Courier New", 35, "underline"), background="#333333", foreground="white")
     titleLabel.place(x=250, y=25)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
