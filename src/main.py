@@ -33,6 +33,7 @@ courier_new4 = font.Font(family='Courier New', size=9)
 courier_new5 = font.Font(family='Courier New', size=35)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#Assorted variables~~~~~~~~~~~~~~~~~~~~~~~~
 fish_list = []
 
 fish_data_path = "res/FishData"
@@ -49,37 +50,42 @@ personalities = ["Agressive", "Active", "Lazy", "Retarded", "Sick"]
 
 x = 50
 y = 150
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ (Dont ask wtf this shit does. Get smart and understand it yourself fam :) )
+#Functions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+#Function for playing sounds with pygame. Takes file path to sound and volume float as input.
 def playSounds(sound, volume):
     pygame.mixer.music.load(sound)
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(loops=0)
 
+#openFishInfo() is easily one of the longest functions. It handles the whole informational page when you open the info on a fish in the main screen.
 def openFishInfo(fish_name, image):
     file_text = NONE
     
+    #This sets the screen view back to the top
     backend_canvas.yview_moveto(0)
-
+    #Plays the sound for opening a new tab
     playSounds("res/sounds/bubble-pop.mp3", 0.1)
-
+    #Creating the frame
     new_fish_tab = Frame(notebook, bg="#333333", name=fish_name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
-    
+    #Creating the fish name title
     fish_title = Label(new_fish_tab, text="~" + fish_name, bg="#333333", foreground="white", font=courier_new2)
     fish_title.place(x=10, y=5)
-
+    #Creating the close button for when you want to close the tab
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", font=courier_new4, command=closeTab)
     close_tab_button.place(x=900, y=10)
-
+    #Creating the submit button for when a user changes information in the tab. This starts up the writeInformation() function.
     submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", font=courier_new4, command=lambda: writeInformation(fish_name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
-
+    #Displaying the image of the fish.
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
     fish_img.photo = image
     fish_img.place(x=5, y=50)
 
-    #An ungodly amount of dropdowns~~~~~~~~
+    #An ungodly amount of dropdowns options~~~~~~~~
+    #The variable in these drop downs are declared above. 
     primary_label = Label(new_fish_tab, text="Primary Colors", background="#333333", foreground="white", font=courier_new4)
     primary_label.place(x=5, y=265)
     primary_drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
@@ -128,12 +134,16 @@ def openFishInfo(fish_name, image):
     personality_drop_down.current(0)
     personality_drop_down.place(x=5, y=640)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
+    #Try and except statement set up for reading the data from the fish's data file
     try:
         with open('res/FishData/' + fish_name + '.csv', 'r') as f:
             csv_reader = csv.reader(f)
+            #Looping through the lines in the file
             for line in csv_reader:
+                #Making sure the first row in the line equals the fish's name
                 if line[0] == fish_name:
+                    #Setting all options and the text field to equal the data in the CSV file. 
                     primary_drop_down.current(line[1])
                     secondary_drop_down.current(line[2])
                     pattern_drop_down.current(line[3])
@@ -144,39 +154,48 @@ def openFishInfo(fish_name, image):
                     personality_drop_down.current(line[8])
                     file_text = line[9]
     except:
+        #If the try statement fails that means there is no fish data file for that fish.
+        #So it creates one with the fish's name and gives it default data.
         fresh_fish_data = [fish_name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
         with open('res/FishData/' + fish_name + '.csv', 'w') as f:
             csv_writer = csv.writer(f, lineterminator="\n")
             csv_writer.writerow(fresh_fish_data)
-    
+    #Making the text box
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
     text_box.place(x=mainWidth-830, y=50, width=800, height=600)
-
+    #Putting a scroll bar in the text box
     text_scroll = Scrollbar(text_box)
     text_scroll.pack(side=RIGHT, fill=Y)
 
     text_box.configure(yscrollcommand=text_scroll.set)
 
     text_scroll.config(command=text_box.yview)
-    
+    #Adding the tab to the notebook in the render function
     notebook.add(new_fish_tab, text="~" + fish_name + "~")
-
+    #Selecting the tab upon creation so it automatically switches over to the tab.
     indexes = notebook.index(END)
     notebook.select(notebook.index(int(indexes) - 1))
 
+#closeTab() is a function made for closing a tab after the close button in select. Why is this here?
 def closeTab():
     notebook.hide(notebook.select())
 
+#writeInformation() is called when a user selects the submit button the fish info tab.
+#Its here to write the inputted data into the fish's CSV data file. 
 def writeInformation(fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, text):
+    #Getting all the text in the text field.
     sumbit_text = text.get("1.0", END)
+    #Assigning all the data in the drop downs to an array.
     submit_data = [fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, sumbit_text]
     with open('res/FishData/' + fish_name + '.csv', 'w') as f:
         csv_writer = csv.writer(f, lineterminator="\n")
         csv_writer.writerow(submit_data)
 
+#The popUpConfirm() function is run when a user clicks the delete button on a fish in the main page. Its here to prevent accidental deletion.
 def popUpConfirm(fish_name):
     global popup
+    #Creating and editing a TopLevel window.
     popup = Toplevel(root)
     popup.title("Confirm")
     popup_width = 250
@@ -187,51 +206,64 @@ def popUpConfirm(fish_name):
     popupy = (popup_screeny / 2 - popup_height / 2)
     popup.geometry(f"{popup_width}x{popup_height}+{int(popupx)}+{int(popupy)}")
     popup.config(bg="#333333")
+    
+    #This is the message that appears and asks if you'd like to confirm deletion.
     confirm_message = Label(popup, text=f"Would you like to delete: \n {fish_name}", font=courier_new3, background="#333333", foreground="white")
     confirm_message.place(x=10, y=20)
-
+    #Yes button will trigger the deleteFish() function.
     yes_button = Button(popup, width=10, text="Yes", background="gray", foreground="#38BC00", command=lambda: deleteFish(fish_name))
     yes_button.place(x=10, y=100)
-
+    #No button will kill the pop-up window process.
     no_button = Button(popup, width=10, text="No", background="gray", foreground="red", command=popup.destroy)
     no_button.place(x=160, y=100)
 
+#The deleteFish() function is called when the yes button is selected on the pop-up window. 
 def deleteFish(fish_name):
     global x, y, fish_list
-
+    #Destroy the pop-up window
     popup.destroy()
-    
+    #Opens the main fish csv list and prints all lines out into a list. Kinda like copy and paste here.
     with open("res/fish.csv", "r") as f:
         reader = csv.reader(f)
         data = list(reader)
-
+    #Re-read the file, instead this time it checks each line for a name and removes the corresponding widgets on the front page.
+    #In summary its removing all the fish from the main screen for re-adding. Re-adding all the fish to the main screen was my shorcut for filling the empty space after deleting a fish.
     with open("res/fish.csv", "r") as f:
         reader = csv.reader(f)
         next(reader)
         for line in reader:
+            #This is a handy little way of converting regular widgets into the url of its name. 
+            #Each widget has a name assigned (ie. BoBImg, JerryTitle). These lines find each widget with the corresponding fish name and destroy them. 
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Img").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Title").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Delete").destroy()
-    
+    #Here we open the same list CSV file, but for writing. 
+    #It goes through each row in the "data" list variable created earlier and checks if the [0] position is equal to the fish name selected when this function was called.
+    #If it doesnt equal, then it will write all the data to the file. This way, that specific fish is being left out and essentially removed from the program.
     with open("res/fish.csv", "w", newline='') as f:
         writer = csv.writer(f)
         for row in data:
             if row[0] != fish_name:
                 writer.writerow(row)
-
+    #Here we are deleting the fish's data file associated with it.
+    #Essentially just checking if the file exists, if it does then remove it.
     if os.path.exists(f"res/FishData/{fish_name}.csv"):
         os.remove(f"res/FishData/{fish_name}.csv")
     else:
         print("File does not exist")
-
+    #Resetting the X and Y coordinates for where the fish and labels are placed on the main screen. That way when we refresh, it doesnt start at the last position.
     x = 50
     y = 150
-
+    #Resetting the fish_list array back to 0 for rewriting. (Also clearing that deleted fish out)
     fish_list = []
-    
+    #Re-running the readFish() function. This lights off the refresh process, in turn, re-rendering all the fish back onto the screen with the exception of the deleted one. 
     readFish()
 
+#The addFish() function is used to display new fish on the main page and supply the buttons for deleting fish and opening new tabs.
+#It has global x and y variables to other functions can manipulate the position and update it if a fish is deleted.
+#Then it creates a name label for a title. Tries to get image selected. If no image is found it selects a default.
+#Displays the image, info button and delete button. At the end it offsets the x and y coordinates to place the next fish in the correct place.
 def addFish(fish_name, image):
     global x, y
 
@@ -260,11 +292,18 @@ def addFish(fish_name, image):
         x = 50
         y += 265
 
+#This function is called when you click the select_image button when adding a new fish.
+#When this function is called. A dialog box is opened to allow the user to select an image to use.
+#It renames the variable "selected_fish_image" to the file path of the image to later be used.
 def openFishImage():
     global selected_fish_image
     root.filename = fd.askopenfilename(initialdir="res/img", title="~Select an image~", filetypes=(("~All Files~", "*.*"), (".png files", "*.png"), (".jpg files", "*.jpg")))
     selected_fish_image = root.filename
 
+#appendFish() handles writing new fish to the CSV file so it can be read later.
+#If the fish name is not already in the array "fish_list", it will continue.
+#The data to be appened will be put into an array for insertion.
+#Then append the row to the file and run the addFish() function to add it to screen.
 def appendFish(fish_name, image):
     if fish_name not in fish_list:
         fish_list.append(fish_name)
@@ -276,6 +315,8 @@ def appendFish(fish_name, image):
     else:
         print("NEGATIVE GHOST RIDER")
 
+#readFish() opens the main CSV list file to read all the fish names and image paths, then run the addFish() on each fish.
+#During the loop process, it also adds just the fish name in each line to an array that will later be used to make sure the fish doesnt already exist.
 def readFish():
     with open('res/fish.csv', 'r') as f:
         csv_reader = csv.reader(f)
@@ -284,10 +325,15 @@ def readFish():
             fish_list.append(line[0])
             addFish(line[0], line[1])
 
+#Function to scroll the backend_canvas, only if you're on the main page. 
 def _on_mouse_wheel(event):
     if notebook.index(notebook.select()) == 0:
         backend_canvas.yview_scroll(-1 * int((event.delta / 120)), "units")
 
+#Render function is the main function. It creates the main frames and canvas needed to host the Notebook widget
+#Also contains main page things in the GUI, as well as the scroll bar. 
+#This function ultimately lights off the rest of the program. The add_element button is used to call appendFish() which will create new fish.
+#At the end of this function we call the readFish() function. readFish() will start the process for displaying the fish on the screen.
 def render():
     global frame1, notebook, backend_canvas, full_scrollbar
 
