@@ -178,8 +178,10 @@ def writeInformation(fish_name, primary, secondary, pattern, gender, tail, defor
         csv_writer = csv.writer(f, lineterminator="\n")
         csv_writer.writerow(submit_data)
 
+#The popUpConfirm() function is run when a user clicks the delete button on a fish in the main page. Its here to prevent accidental deletion.
 def popUpConfirm(fish_name):
     global popup
+    #Creating and editing a TopLevel window.
     popup = Toplevel(root)
     popup.title("Confirm")
     popup_width = 250
@@ -190,51 +192,58 @@ def popUpConfirm(fish_name):
     popupy = (popup_screeny / 2 - popup_height / 2)
     popup.geometry(f"{popup_width}x{popup_height}+{int(popupx)}+{int(popupy)}")
     popup.config(bg="#333333")
+    
+    #This is the message that appears and asks if you'd like to confirm deletion.
     confirm_message = Label(popup, text=f"Would you like to delete: \n {fish_name}", font=courier_new3, background="#333333", foreground="white")
     confirm_message.place(x=10, y=20)
-
+    #Yes button will trigger the deleteFish() function.
     yes_button = Button(popup, width=10, text="Yes", background="gray", foreground="#38BC00", command=lambda: deleteFish(fish_name))
     yes_button.place(x=10, y=100)
-
+    #No button will kill the pop-up window process.
     no_button = Button(popup, width=10, text="No", background="gray", foreground="red", command=popup.destroy)
     no_button.place(x=160, y=100)
 
 #The deleteFish() function is called when the yes button is selected on the pop-up window. 
-
 def deleteFish(fish_name):
     global x, y, fish_list
-
+    #Destroy the pop-up window
     popup.destroy()
-    
+    #Opens the main fish csv list and prints all lines out into a list. Kinda like copy and paste here.
     with open("res/fish.csv", "r") as f:
         reader = csv.reader(f)
         data = list(reader)
-
+    #Re-read the file, instead this time it checks each line for a name and removes the corresponding widgets on the front page.
+    #In summary its removing all the fish from the main screen for re-adding. Re-adding all the fish to the main screen was my shorcut for filling the empty space after deleting a fish.
     with open("res/fish.csv", "r") as f:
         reader = csv.reader(f)
         next(reader)
         for line in reader:
+            #This is a handy little way of converting regular widgets into the url of its name. 
+            #Each widget has a name assigned (ie. BoBImg, JerryTitle). These lines find each widget with the corresponding fish name and destroy them. 
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Img").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Title").destroy()
             root.nametowidget(f".!frame.!canvas.!frame.!notebook.!frame.{line[0].lower()}Delete").destroy()
-    
+    #Here we open the same list CSV file, but for writing. 
+    #It goes through each row in the "data" list variable created earlier and checks if the [0] position is equal to the fish name selected when this function was called.
+    #If it doesnt equal, then it will write all the data to the file. This way, that specific fish is being left out and essentially removed from the program.
     with open("res/fish.csv", "w", newline='') as f:
         writer = csv.writer(f)
         for row in data:
             if row[0] != fish_name:
                 writer.writerow(row)
-
+    #Here we are deleting the fish's data file associated with it.
+    #Essentially just checking if the file exists, if it does then remove it.
     if os.path.exists(f"res/FishData/{fish_name}.csv"):
         os.remove(f"res/FishData/{fish_name}.csv")
     else:
         print("File does not exist")
-
+    #Resetting the X and Y coordinates for where the fish and labels are placed on the main screen. That way when we refresh, it doesnt start at the last position.
     x = 50
     y = 150
-
+    #Resetting the fish_list array back to 0 for rewriting. (Also clearing that deleted fish out)
     fish_list = []
-    
+    #Re-running the readFish() function. This lights off the refresh process, in turn, re-rendering all the fish back onto the screen with the exception of the deleted one. 
     readFish()
 
 #The addFish() function is used to display new fish on the main page and supply the buttons for deleting fish and opening new tabs.
