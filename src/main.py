@@ -59,30 +59,33 @@ def playSounds(sound, volume):
     pygame.mixer.music.set_volume(volume)
     pygame.mixer.music.play(loops=0)
 
+#openFishInfo() is easily one of the longest functions. It handles the whole informational page when you open the info on a fish in the main screen.
 def openFishInfo(fish_name, image):
     file_text = NONE
     
+    #This sets the screen view back to the top
     backend_canvas.yview_moveto(0)
-
+    #Plays the sound for opening a new tab
     playSounds("res/sounds/bubble-pop.mp3", 0.1)
-
+    #Creating the frame
     new_fish_tab = Frame(notebook, bg="#333333", name=fish_name.lower(), borderwidth=0)
     new_fish_tab.pack(fill=BOTH, expand=1)
-    
+    #Creating the fish name title
     fish_title = Label(new_fish_tab, text="~" + fish_name, bg="#333333", foreground="white", font=courier_new2)
     fish_title.place(x=10, y=5)
-
+    #Creating the close button for when you want to close the tab
     close_tab_button = Button(new_fish_tab, text="Close Tab", background="gray", foreground="white", font=courier_new4, command=closeTab)
     close_tab_button.place(x=900, y=10)
-
+    #Creating the submit button for when a user changes information in the tab. This starts up the writeInformation() function.
     submit_button = Button(new_fish_tab, text="Submit Information", background="gray", foreground="white", font=courier_new4, command=lambda: writeInformation(fish_name, primary_drop_down.current(), secondary_drop_down.current(), pattern_drop_down.current(), gender_drop_down.current(), tail_drop_down.current(), deformity_drop_down.current(), disease_drop_down.current(), personality_drop_down.current(), text_box))
     submit_button.place(x=980, y=10)
-
+    #Displaying the image of the fish.
     fish_img = Label(new_fish_tab, image=image, background="#333333", relief="groove")
     fish_img.photo = image
     fish_img.place(x=5, y=50)
 
-    #An ungodly amount of dropdowns~~~~~~~~
+    #An ungodly amount of dropdowns options~~~~~~~~
+    #The variable in these drop downs are declared above. 
     primary_label = Label(new_fish_tab, text="Primary Colors", background="#333333", foreground="white", font=courier_new4)
     primary_label.place(x=5, y=265)
     primary_drop_down = ttk.Combobox(new_fish_tab, value=primary_colors, font=courier_new4)
@@ -131,12 +134,16 @@ def openFishInfo(fish_name, image):
     personality_drop_down.current(0)
     personality_drop_down.place(x=5, y=640)
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
+    #Try and except statement set up for reading the data from the fish's data file
     try:
         with open('res/FishData/' + fish_name + '.csv', 'r') as f:
             csv_reader = csv.reader(f)
+            #Looping through the lines in the file
             for line in csv_reader:
+                #Making sure the first row in the line equals the fish's name
                 if line[0] == fish_name:
+                    #Setting all options and the text field to equal the data in the CSV file. 
                     primary_drop_down.current(line[1])
                     secondary_drop_down.current(line[2])
                     pattern_drop_down.current(line[3])
@@ -147,32 +154,39 @@ def openFishInfo(fish_name, image):
                     personality_drop_down.current(line[8])
                     file_text = line[9]
     except:
+        #If the try statement fails that means there is no fish data file for that fish.
+        #So it creates one with the fish's name and gives it default data.
         fresh_fish_data = [fish_name, 0, 0, 0, 0, 0, 0, 0, 0, ""]
         with open('res/FishData/' + fish_name + '.csv', 'w') as f:
             csv_writer = csv.writer(f, lineterminator="\n")
             csv_writer.writerow(fresh_fish_data)
-    
+    #Making the text box
     text_box = Text(new_fish_tab, background="gray", foreground="white", relief="groove", borderwidth=3)
     text_box.insert(END, ''.join(file_text))
     text_box.place(x=mainWidth-830, y=50, width=800, height=600)
-
+    #Putting a scroll bar in the text box
     text_scroll = Scrollbar(text_box)
     text_scroll.pack(side=RIGHT, fill=Y)
 
     text_box.configure(yscrollcommand=text_scroll.set)
 
     text_scroll.config(command=text_box.yview)
-    
+    #Adding the tab to the notebook in the render function
     notebook.add(new_fish_tab, text="~" + fish_name + "~")
-
+    #Selecting the tab upon creation so it automatically switches over to the tab.
     indexes = notebook.index(END)
     notebook.select(notebook.index(int(indexes) - 1))
 
+#closeTab() is a function made for closing a tab after the close button in select. Why is this here?
 def closeTab():
     notebook.hide(notebook.select())
 
+#writeInformation() is called when a user selects the submit button the fish info tab.
+#Its here to write the inputted data into the fish's CSV data file. 
 def writeInformation(fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, text):
+    #Getting all the text in the text field.
     sumbit_text = text.get("1.0", END)
+    #Assigning all the data in the drop downs to an array.
     submit_data = [fish_name, primary, secondary, pattern, gender, tail, deformity, disease, personality, sumbit_text]
     with open('res/FishData/' + fish_name + '.csv', 'w') as f:
         csv_writer = csv.writer(f, lineterminator="\n")
